@@ -9,17 +9,18 @@ import org.springframework.context.annotation.Profile;
 /**
  * @author cevher
  */
-@Profile("!local-discovery")
+@Profile("local-discovery")
 @Configuration
-public class LocalhostRouteConfig {
-
+public class LoadBalancedRouteConfig {
     @Bean
     public RouteLocator localHostRoutes(RouteLocatorBuilder builder) {
         return builder.routes()
                 .route(r -> r.path("/api/v1/beer*", "/api/v1/beer/*", "/api/v1/beerUpc/*")
-                        .uri("http://localhost:8080"))
-                .route(r -> r.path("/api/v1/customers/**").uri("http://localhost:8081"))
-                .route(r -> r.path("/api/v1/beer/*/inventory").uri("http://localhost:8082"))
+                        .uri("lb://beer-service"))
+                .route(r -> r.path("/api/v1/customers/**")
+                        .uri("lb://beer-order-service"))
+                .route(r -> r.path("/api/v1/beer/*/inventory")
+                        .uri("lb://beer-inventory-service"))
                 .build();
     }
 }
